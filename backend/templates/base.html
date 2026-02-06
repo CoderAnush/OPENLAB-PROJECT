@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gas and Smoke Detector{% endblock %}</title>
+    <!-- Tailwind CSS (CDN for simplicity without build step) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0EA5E9",
+                        secondary: "#64748B",
+                        dark: {
+                            bg: "#0F172A",
+                            card: "#1E293B",
+                            text: "#F8FAFC"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .sidebar-active {
+            background-color: rgba(14, 165, 233, 0.1);
+            color: #0EA5E9;
+        }
+    </style>
+</head>
+
+<body
+    class="h-full flex overflow-hidden text-slate-900 bg-slate-50 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+
+    <!-- Sidebar -->
+    <aside
+        class="w-64 bg-white dark:bg-dark-card border-r border-slate-200 dark:border-slate-700 flex flex-col transition-colors duration-300">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                Gas and Smoke
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Detector System</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <a href="/"
+                class="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 {% if page == 'dashboard' %}sidebar-active{% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </a>
+            <a href="/graphs"
+                class="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 {% if page == 'graphs' %}sidebar-active{% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                <i data-lucide="line-chart" class="w-5 h-5 mr-3"></i> Live Graphs
+            </a>
+            <a href="/alerts"
+                class="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 {% if page == 'alerts' %}sidebar-active{% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mr-3"></i> Alerts & Logs
+            </a>
+            <a href="/emergency"
+                class="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 {% if page == 'emergency' %}bg-red-50 dark:bg-red-900/20{% endif %}">
+                <i data-lucide="siren" class="w-5 h-5 mr-3"></i> Emergency
+            </a>
+            <a href="/settings"
+                class="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 {% if page == 'settings' %}sidebar-active{% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i> Settings
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header
+            class="h-16 bg-white dark:bg-dark-card border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 transition-colors duration-300">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-white border-l-4 border-primary pl-3">
+                {% block header %}Overview{% endblock %}
+            </h2>
+            <div class="flex items-center gap-4">
+                <button id="themeToggle"
+                    class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-6 transition-colors duration-300">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Global Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Theme Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+    </script>
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

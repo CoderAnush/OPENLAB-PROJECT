@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IndustraIoT{% endblock %}
+{% block header %}
+<div class="flex flex-col">
+    <span>Dashboard Overview</span>
+    <div class="flex items-center gap-2 mt-1">
+        <span id="connection-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+        <span id="connection-text" class="text-xs font-medium text-slate-500">Connecting...</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Auto Refresh Control -->
+    <div
+        class="flex justify-between items-center bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <i data-lucide="radio" class="w-5 h-5 text-green-500 animate-pulse"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+            </div>
+            <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Live Updates Every 0.3s</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Last Updated:</span>
+            <span id="last-update-time"
+                class="text-sm font-mono text-slate-900 dark:text-white font-semibold bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">--:--:--</span>
+        </div>
+    </div>
+
+    <!-- KPI Top Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl shadow-lg">
+            <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="wind" class="w-4 h-4 opacity-80"></i>
+                <p class="text-xs font-medium opacity-90">MQ-2 Gas</p>
+            </div>
+            <h3 id="kpi-mq2" class="text-2xl font-bold">-- V</h3>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 rounded-xl shadow-lg">
+            <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="activity" class="w-4 h-4 opacity-80"></i>
+                <p class="text-xs font-medium opacity-90">MQ-135 Air</p>
+            </div>
+            <h3 id="kpi-mq135" class="text-2xl font-bold">-- V</h3>
+        </div>
+        <div id="kpi-risk-card"
+            class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl shadow-lg">
+            <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="shield" class="w-4 h-4 opacity-80"></i>
+                <p class="text-xs font-medium opacity-90">Risk Score</p>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <h3 id="kpi-risk" class="text-2xl font-bold">0%</h3>
+                <span id="kpi-status" class="text-xs font-bold uppercase tracking-wide">SAFE</span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Gauges & Prediction -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Gauges -->
+        <div
+            class="col-span-1 lg:col-span-2 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-6">Real-time Gauges</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div class="relative h-40 w-full">
+                    <canvas id="gaugeMQ2"></canvas>
+                </div>
+                <div class="relative h-40 w-full">
+                    <canvas id="gaugeMQ135"></canvas>
+                </div>
+                <div class="relative h-40 w-full">
+                    <canvas id="gaugeMQ2V"></canvas>
+                </div>
+                <div class="relative h-40 w-full">
+                    <canvas id="gaugeMQ135V"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Score -->
+        <div
+            class="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 flex flex-col items-center justify-center text-center">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Risk Assessment</h3>
+            <div
+                class="relative w-40 h-40 flex items-center justify-center rounded-full border-8 border-slate-100 dark:border-slate-700 mt-4">
+                <div id="risk-circle"
+                    class="absolute inset-0 rounded-full border-8 border-transparent transition-all duration-500"
+                    style="border-color: transparent; transform: rotate(0deg);"></div>
+                <div>
+                    <div id="risk-val" class="text-4xl font-bold dark:text-white">0%</div>
+                    <div id="risk-status" class="text-sm font-medium mt-1 uppercase tracking-wide">SAFE</div>
+                </div>
+            </div>
+
+            <!-- ML Details Section -->
+            <div
+                class="mt-6 w-full bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-left border border-slate-100 dark:border-slate-700/50">
+
+                <!-- Predictions Row -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">ML Confidence</p>
+                        <div class="flex items-baseline gap-1">
+                            <p id="ml-confidence"
+                                class="text-xl font-mono font-bold text-slate-700 dark:text-slate-200">--%</p>
+                            <span class="text-xs text-slate-400">certainty</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">AI Decision</p>
+                        <p id="ai-command" class="text-lg font-mono font-bold text-blue-500">--</p>
+                    </div>
+                </div>
+
+                <!-- Probability Distribution -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] uppercase font-bold text-slate-400 mb-2">
+                        <span>Safe</span>
+                        <span>Warning</span>
+                        <span>Danger</span>
+                    </div>
+                    <div class="flex h-2 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                        <div id="prob-safe" class="bg-emerald-500 transition-all duration-500" style="width: 33%"></div>
+                        <div id="prob-warn" class="bg-amber-500 transition-all duration-500" style="width: 33%"></div>
+                        <div id="prob-crit" class="bg-rose-500 transition-all duration-500" style="width: 34%"></div>
+                    </div>
+                </div>
+
+                <!-- Time Prediction -->
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-700/50">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Predictive Horizon</p>
+                    <div id="time-critical-container"
+                        class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                        <i data-lucide="timer" class="w-4 h-4 text-slate-400"></i>
+                        <p id="time-to-critical" class="text-sm font-semibold text-slate-600 dark:text-slate-300">Stable
+                            Condition</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Log Footer -->
+    <div class="px-4 py-2 mt-4 bg-slate-50 dark:bg-slate-800 rounded text-xs font-mono text-slate-500 break-all">
+        <span class="font-bold">Raw Serial:</span> <span id="val-raw-log">Waiting...</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard_v2.js?v=15"></script>
+{% endblock %}

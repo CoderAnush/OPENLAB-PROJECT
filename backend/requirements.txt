@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pyserial
+scikit-learn
+pandas
+numpy
+websockets
+python-multipart
+joblib
+jinja2
+aiofiles

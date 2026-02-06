@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Live Graphs - IndustraIoT{% endblock %}
+{% block header %}Real-time Analytics{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="p-6 bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <canvas id="gasChart" class="w-full h-80"></canvas>
+    </div>
+    <div class="p-6 bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <canvas id="voltageChart" class="w-full h-80"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1"></script>
+<script>
+    // Gas Chart with Thresholds
+    const ctxGas = document.getElementById('gasChart').getContext('2d');
+    const gasChart = new Chart(ctxGas, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'MQ-2 (ppm)',
+                data: [],
+                borderColor: 'rgb(139, 92, 246)',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'MQ-135 (ppm)',
+                data: [],
+                borderColor: 'rgb(16, 185, 129)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Gas Levels (ppm)', font: { size: 16, weight: 'bold' } },
+                annotation: {
+                    annotations: {
+                        warn: {
+                            type: 'line',
+                            yMin: 525,
+                            yMax: 525,
+                            borderColor: 'rgba(251, 191, 36, 0.8)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                display: true,
+                                content: '⚠ Warning (525 ppm ≈ 1.5V)',
+                                position: 'end',
+                                backgroundColor: 'rgba(251, 191, 36, 0.9)',
+                                color: 'white',
+                                font: { size: 10, weight: 'bold' }
+                            }
+                        },
+                        danger: {
+                            type: 'line',
+                            yMin: 700,
+                            yMax: 700,
+                            borderColor: 'rgba(239, 68, 68, 0.8)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                display: true,
+                                content: '🚨 Danger (700 ppm ≈ 2.0V)',
+                                position: 'end',
+                                backgroundColor: 'rgba(239, 68, 68, 0.9)',
+                                color: 'white',
+                                font: { size: 10, weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(200, 200, 200, 0.1)' },
+                    beginAtZero: true,
+                    max: 800
+                },
+                x: { grid: { color: 'rgba(200, 200, 200, 0.1)' } }
+            },
+            elements: { point: { radius: 0 } }
+        }
+    });
+
+    // Voltage Chart
+    const ctxVoltage = document.getElementById('voltageChart').getContext('2d');
+    const voltageChart = new Chart(ctxVoltage, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'MQ-2 Voltage (V)',
+                data: [],
+                borderColor: 'rgb(99, 102, 241)',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'MQ-135 Voltage (V)',
+                data: [],
+                borderColor: 'rgb(45, 212, 191)',
+                backgroundColor: 'rgba(45, 212, 191, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Sensor Voltages', font: { size: 16, weight: 'bold' } },
+                annotation: {
+                    annotations: {
+                        safe: {
+                            type: 'box',
+                            yMin: 0,
+                            yMax: 1.5,
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 0,
+                            label: {
+                                display: true,
+                                content: 'Safe Zone',
+                                position: 'start',
+                                color: 'rgba(16, 185, 129, 0.7)',
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(200, 200, 200, 0.1)' },
+                    beginAtZero: true,
+                    max: 3.3
+                },
+                x: { grid: { color: 'rgba(200, 200, 200, 0.1)' } }
+            },
+            elements: { point: { radius: 0 } }
+        }
+    });
+
+    const wsGraph = new WebSocket(`ws://${window.location.host}/ws`);
+    wsGraph.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const now = new Date().toLocaleTimeString();
+
+        const updateChart = (chart, val1, val2) => {
+            if (chart.data.labels.length > 30) {
+                chart.data.labels.shift();
+                chart.data.datasets.forEach(bs => bs.data.shift());
+            }
+            chart.data.labels.push(now);
+            chart.data.datasets[0].data.push(val1 || 0);
+            chart.data.datasets[1].data.push(val2 || 0);
+            chart.update('none');
+        };
+
+        updateChart(gasChart, (data.mq2_voltage || 0) * 350, (data.mq135_voltage || 0) * 350);
+        updateChart(voltageChart, data.mq2_voltage, data.mq135_voltage);
+    };
+</script>
+{% endblock %}

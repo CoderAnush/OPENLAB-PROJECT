@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts - IndustraIoT{% endblock %}
+{% block header %}System Alerts & Logs{% endblock %}
+
+{% block content %}
+<!-- Filter & Export Bar -->
+<div
+    class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50">
+    <div class="flex flex-wrap gap-2">
+        <button onclick="filterAlerts('all')"
+            class="filter-btn bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            data-filter="all">All</button>
+        <button onclick="filterAlerts('today')"
+            class="filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            data-filter="today">Today</button>
+        <button onclick="filterAlerts('high')"
+            class="filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            data-filter="high"><i data-lucide="alert-circle" class="w-4 h-4 inline"></i> Danger</button>
+        <button onclick="filterAlerts('medium')"
+            class="filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            data-filter="medium"><i data-lucide="alert-triangle" class="w-4 h-4 inline"></i> Warning</button>
+    </div>
+    <div class="flex gap-2">
+        <button onclick="clearAllAlerts()"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"><i
+                data-lucide="trash-2" class="w-4 h-4"></i>Clear All</button>
+        <button onclick="exportAlertsCSV()"
+            class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"><i
+                data-lucide="download" class="w-4 h-4"></i>Export CSV</button>
+    </div>
+</div>
+
+<!-- Alerts Table -->
+<div
+    class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                    <th
+                        class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                        Severity</th>
+                    <th
+                        class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                        Message</th>
+                    <th
+                        class="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                        Timestamp</th>
+                </tr>
+            </thead>
+            <tbody id="alerts-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tr>
+                    <td colspan="3" class="px-6 py-10 text-center text-slate-500 dark:text-slate-400">Loading alerts...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    let allAlerts = [];
+
+    // Fetch Alerts on Load and Poll every 3 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchAlerts();
+        setInterval(fetchAlerts, 3000); // Auto-refresh logic
+    });
+
+    function fetchAlerts() {
+        fetch("/api/alerts?limit=100")
+            .then(res => res.json())
+            .then(data => {
+                allAlerts = data;
+                renderAlerts(allAlerts);
+            })
+            .catch(err => {
+                console.error("Error fetching alerts:", err);
+                document.getElementById("alerts-table-body").innerHTML =
+                    '<tr><td colspan="3" class="px-6 py-10 text-center text-red-500">Failed to load alerts.</td></tr>';
+            });
+    }
+
+    function renderAlerts(alerts) {
+        const tbody = document.getElementById("alerts-table-body");
+        tbody.innerHTML = "";
+
+        if (alerts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-slate-500 dark:text-slate-400">No recent alerts.</td></tr>';
+            return;
+        }
+
+        alerts.forEach(alertItem => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors";
+
+            // Severity Styling
+            let badgeClass = "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+            let icon = "info";
+
+            if (alertItem.severity === "high") {
+                badgeClass = "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+                icon = "alert-circle";
+            } else if (alertItem.severity === "medium") {
+                badgeClass = "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300";
+                icon = "alert-triangle";
+            }
+
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase ${badgeClass}">
+                        <i data-lucide="${icon}" class="w-3 h-3"></i>
+                        ${alertItem.severity}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <p class="font-medium text-slate-900 dark:text-white">${alertItem.message}</p>
+                </td>
+                <td class="px-6 py-4">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 font-mono">
+                        ${new Date(alertItem.timestamp).toLocaleString()}
+                    </p>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Re-initialize icons for new elements
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    function filterAlerts(filterType) {
+        // Update Buttons
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.classList.remove("bg-primary", "text-white");
+            btn.classList.add("bg-slate-100", "dark:bg-slate-700", "text-slate-600", "dark:text-slate-300");
+        });
+
+        const activeBtn = document.querySelector(`[data-filter="${filterType}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove("bg-slate-100", "dark:bg-slate-700", "text-slate-600", "dark:text-slate-300");
+            activeBtn.classList.add("bg-primary", "text-white");
+        }
+
+        // Filter Logic
+        let filtered = allAlerts;
+        if (filterType === 'today') {
+            const today = new Date().toDateString();
+            filtered = allAlerts.filter(a => new Date(a.timestamp).toDateString() === today);
+        } else if (filterType === 'high' || filterType === 'medium') {
+            filtered = allAlerts.filter(a => a.severity === filterType);
+        }
+
+        renderAlerts(filtered);
+    }
+
+    function exportAlertsCSV() {
+        if (allAlerts.length === 0) {
+            alert("No alerts to export");
+            return;
+        }
+
+        let csvContent = "Severity,Message,Timestamp\n";
+        allAlerts.forEach(a => {
+            // Escape quotes in message
+            const msg = a.message.replace(/"/g, '""');
+            csvContent += `"${a.severity}","${msg}","${new Date(a.timestamp).toLocaleString()}"\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `alerts_${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    function clearAllAlerts() {
+        if (!confirm("Are you sure you want to clear all alerts from the database? This cannot be undone.")) {
+            return;
+        }
+
+        fetch("/api/alerts/clear", { method: "DELETE" })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed");
+                return res.json();
+            })
+            .then(data => {
+                allAlerts = [];
+                renderAlerts([]);
+                // Optional: Show a nicer toast instead of alert
+                alert("All alerts cleared successfully!");
+            })
+            .catch(err => {
+                console.error("Error clearing alerts:", err);
+                alert("Failed to clear alerts. Please try again.");
+            });
+    }
+</script>
+{% endblock %}

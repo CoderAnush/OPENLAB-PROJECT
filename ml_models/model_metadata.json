@@ -1,0 +1,24 @@
+{
+  "model_type": "RandomForestClassifier",
+  "n_estimators": 150,
+  "classes": [
+    "CRITICAL",
+    "SAFE",
+    "WARN"
+  ],
+  "features": [
+    "mq2_now",
+    "mq135_now",
+    "mq2_delta",
+    "mq135_delta",
+    "mq2_mean_window",
+    "mq135_mean_window",
+    "mq2_max_window",
+    "mq135_max_window"
+  ],
+  "training_accuracy": 0.9953917050691244,
+  "test_accuracy": 0.9715302491103203,
+  "num_training_samples": 651,
+  "num_test_samples": 281,
+  "timestamp": "2026-01-30T00:39:26.965739"
+}

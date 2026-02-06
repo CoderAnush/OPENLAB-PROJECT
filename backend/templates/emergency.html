@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency - IndustraIoT{% endblock %}
+{% block header %}Emergency Protocols{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8">
+    <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-8 rounded-2xl shadow-lg flex items-center gap-6">
+        <div class="p-4 bg-white/20 rounded-full">
+            <i data-lucide="shield-alert" class="w-16 h-16"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold">Emergency Action Guide</h1>
+            <p class="text-red-100 mt-2 text-lg">Follow these protocols immediately in case of detected hazards.</p>
+        </div>
+    </div>
+
+    <!-- Emergency Procedures Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Fire / Explosion -->
+        <div class="bg-white dark:bg-dark-card p-6 rounded-2xl border-2 border-orange-200 dark:border-orange-900/50 shadow-lg">
+            <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                    <i data-lucide="flame" class="w-8 h-8 text-orange-600 dark:text-orange-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Fire / Explosion</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Trigger</strong> the manual fire alarm immediately</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Evacuate</strong> via the nearest safe exit (South Gate preferred)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Do NOT</strong> use elevators - use stairs only</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                    <p class="text-slate-700 dark:text-slate-300">If smoke is present, <strong>stay low</strong> to the floor</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
+                    <p class="text-slate-700 dark:text-slate-300">Proceed to <strong>Assembly Point A</strong> (North Parking Lot)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gas Leak -->
+        <div class="bg-white dark:bg-dark-card p-6 rounded-2xl border-2 border-yellow-200 dark:border-yellow-900/50 shadow-lg">
+            <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+                    <i data-lucide="wind" class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Gas Leak (MQ-2/135)</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Shut off</strong> the main gas valve if safe to do so</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Open</strong> all windows and doors for ventilation</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Do NOT</strong> switch on/off any electrical appliances or lights</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Evacuate</strong> the area immediately (use West Exit)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Contact</strong> maintenance and fire department immediately</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smoke Inhalation -->
+        <div class="bg-white dark:bg-dark-card p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-lg">
+            <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
+                    <i data-lucide="clouds" class="w-8 h-8 text-slate-600 dark:text-slate-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Smoke Inhalation</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-slate-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                    <p class="text-slate-700 dark:text-slate-300">Move to <strong>fresh air</strong> immediately</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-slate-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                    <p class="text-slate-700 dark:text-slate-300">Cover nose and mouth with <strong>wet cloth</strong></p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-slate-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                    <p class="text-slate-700 dark:text-slate-300">If victim is unconscious, <strong>call 102</strong> (Ambulance)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-slate-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                    <p class="text-slate-700 dark:text-slate-300">Administer <strong>oxygen</strong> if trained and available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Electrical Fire -->
+        <div class="bg-white dark:bg-dark-card p-6 rounded-2xl border-2 border-blue-200 dark:border-blue-900/50 shadow-lg">
+            <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                    <i data-lucide="zap" class="w-8 h-8 text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Electrical Fire</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>Cut power</strong> at the main circuit breaker if safe</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                    <p class="text-slate-700 dark:text-slate-300">Use <strong>Class C fire extinguisher</strong> (CO₂ or Dry Chemical)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                    <p class="text-slate-700 dark:text-slate-300"><strong>NEVER</strong> use water on electrical fires</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                    <p class="text-slate-700 dark:text-slate-300">Evacuate if fire spreads beyond control</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evacuation Map Placeholder -->
+    <div class="bg-white dark:bg-dark-card p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+        <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+            <i data-lucide="map" class="w-7 h-7 text-primary"></i>
+            Evacuation Routes & Assembly Points
+        </h3>
+        <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-12 text-center border-2 border-dashed border-slate-300 dark:border-slate-600">
+            <i data-lucide="map-pin" class="w-16 h-16 text-slate-400 mx-auto mb-4"></i>
+            <p class="text-lg text-slate-600 dark:text-slate-400 font-medium">Site-specific evacuation map</p>
+            <p class="text-sm text-slate-500 dark:text-slate-500 mt-2">Upload your facility layout with marked exits and assembly points</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div>
+                    <p class="font-semibold text-slate-900 dark:text-white">Assembly Point A</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">North Parking Lot</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div>
+                    <p class="font-semibold text-slate-900 dark:text-white">Assembly Point B</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">East Garden Area</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <div>
+                    <p class="font-semibold text-slate-900 dark:text-white">Emergency Exit</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">South & West Gates</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-6 rounded-2xl">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <i data-lucide="phone" class="w-6 h-6 text-primary"></i>
+            Emergency Contacts
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-5 rounded-xl border-2 flex items-center justify-between bg-white dark:bg-dark-card border-red-300 dark:border-red-900/50">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+                        <i data-lucide="phone" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Ambulance</h4>
+                        <p class="text-2xl font-mono text-slate-600 dark:text-slate-300">102</p>
+                    </div>
+                </div>
+                <button onclick="navigator.clipboard.writeText('102'); alert('Copied!')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-colors">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 rounded-xl border-2 flex items-center justify-between bg-white dark:bg-dark-card border-orange-300 dark:border-orange-900/50">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                        <i data-lucide="flame" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Fire Department</h4>
+                        <p class="text-2xl font-mono text-slate-600 dark:text-slate-300">101</p>
+                    </div>
+                </div>
+                <button onclick="navigator.clipboard.writeText('101'); alert('Copied!')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-colors">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 rounded-xl border-2 flex items-center justify-between bg-white dark:bg-dark-card border-blue-300 dark:border-blue-900/50">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                        <i data-lucide="shield-alert" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Police</h4>
+                        <p class="text-2xl font-mono text-slate-600 dark:text-slate-300">100</p>
+                    </div>
+                </div>
+                <button onclick="navigator.clipboard.writeText('100'); alert('Copied!')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-colors">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 rounded-xl border-2 flex items-center justify-between bg-white dark:bg-dark-card border-yellow-300 dark:border-yellow-900/50">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+                        <i data-lucide="wrench" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Plant Maintenance</h4>
+                        <p class="text-lg font-mono text-slate-600 dark:text-slate-300">+91 98765 43210</p>
+                    </div>
+                </div>
+                <button onclick="navigator.clipboard.writeText('+91 98765 43210'); alert('Copied!')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-colors">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

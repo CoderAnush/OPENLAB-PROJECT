@@ -1,0 +1,70 @@
+/* Custom Dashboard Styles */
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    aside {
+        position: fixed;
+        left: -100%;
+        transition: left 0.3s;
+        z-index: 50;
+    }
+    
+    aside.mobile-open {
+        left: 0;
+    }
+    
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    aside, header button {
+        display: none !important;
+    }
+    
+    main {
+        padding: 0 !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    * {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .border, .shadow-sm, .shadow-lg {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Tablet Optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+    aside {
+        width: 200px;
+    }
+    
+    .grid {
+        gap: 1rem !important;
+    }
+}
+
+/* Gauge Responsive */
+@media (max-width: 640px) {
+    canvas {
+        max-height: 150px !important;
+    }
+}
