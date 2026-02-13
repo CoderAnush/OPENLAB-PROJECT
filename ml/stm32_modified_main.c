@@ -27,6 +27,7 @@
 
 #include "main.h"
 #include "adc.h"
+
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -67,6 +68,10 @@ float mq135_threshold = 2.0f;
 /* Sensor voltages */
 float MQ2_V = 0.0f;
 float MQ135_V = 0.0f;
+
+/* ML prediction (received via Bluetooth from host) */
+char ml_prediction[16] = "SAFE";  // values: SAFE, WARN, CRITICAL
+uint8_t ml_override_enabled = 1;    // if set, ML prediction can force fan/relay
 
 /* Timing */
 uint32_t last_sensor_time = 0;
@@ -177,8 +182,8 @@ void process_command(char *cmd)
     }
     else if(strcmp(cmd,"STATUS")==0){
         snprintf(response,sizeof(response),
-            "> STATUS\r\nMQ2: %.2fV\r\nMQ135: %.2fV\r\nAlert: %s\r\nBlink: %dms\r\nCSV: %s\r\nRate: %lu ms\r\n",
-            MQ2_V, MQ135_V, alert_enabled?"ON":"OFF", blink_interval,
+            "> STATUS\r\nMQ2: %.2fV\r\nMQ135: %.2fV\r\nML: %s\r\nAlert: %s\r\nBlink: %dms\r\nCSV: %s\r\nRate: %lu ms\r\n",
+            MQ2_V, MQ135_V, ml_prediction, alert_enabled?"ON":"OFF", blink_interval,
             csv_logging_enabled?"ON":"OFF", csv_log_interval);
         send_bluetooth(response);
         bluetooth_paused = 1;
@@ -206,8 +211,8 @@ void process_command(char *cmd)
         bluetooth_paused = 0;  // Allow continuous logging
         alert_enabled = 0;      // Disable alerts during logging (optional)
 
-        // Send CSV header
-        HAL_UART_Transmit(&huart1, (uint8_t*)"timestamp,mq2,mq135\r\n", 21, HAL_MAX_DELAY);
+        // Send CSV header (include ML prediction column)
+        HAL_UART_Transmit(&huart1, (uint8_t*)"timestamp,mq2,mq135,ml\r\n", 24, HAL_MAX_DELAY);
         last_csv_time = HAL_GetTick();
 
         // Update LCD
@@ -249,6 +254,30 @@ void process_command(char *cmd)
         alert_enabled = 0;
         send_bluetooth("> Bluetooth alerts DISABLED\r\n");
     }
+
+    /* ----- ML prediction commands (received from host) ----- */
+    else if(strncmp(cmd, "AI_", 3) == 0) {
+        // Accept AI_SAFE, AI_WARN, AI_CRITICAL
+        if(strncmp(cmd, "AI_SAFE", 7) == 0) {
+            strncpy(ml_prediction, "SAFE", sizeof(ml_prediction));
+            ml_prediction[sizeof(ml_prediction)-1] = '\0';
+            /* Immediate ACK over UART (bypass bluetooth_paused guard) */
+            HAL_UART_Transmit(&huart1, (uint8_t*)"> ML: SAFE acknowledged\r\n", strlen("> ML: SAFE acknowledged\r\n"), HAL_MAX_DELAY);
+        } else if(strncmp(cmd, "AI_WARN", 7) == 0) {
+            strncpy(ml_prediction, "WARN", sizeof(ml_prediction));
+            ml_prediction[sizeof(ml_prediction)-1] = '\0';
+            HAL_UART_Transmit(&huart1, (uint8_t*)"> ML: WARN acknowledged - fan ON\r\n", strlen("> ML: WARN acknowledged - fan ON\r\n"), HAL_MAX_DELAY);
+        } else if(strncmp(cmd, "AI_CRITICAL", 11) == 0) {
+            strncpy(ml_prediction, "CRITICAL", sizeof(ml_prediction));
+            ml_prediction[sizeof(ml_prediction)-1] = '\0';
+            HAL_UART_Transmit(&huart1, (uint8_t*)"> ML: CRITICAL acknowledged - fan+alerts ON\r\n", strlen("> ML: CRITICAL acknowledged - fan+alerts ON\r\n"), HAL_MAX_DELAY);
+        } else {
+            HAL_UART_Transmit(&huart1, (uint8_t*)"> ML: Unknown AI command\r\n", strlen("> ML: Unknown AI command\r\n"), HAL_MAX_DELAY);
+        }
+        bluetooth_paused = 1;
+        pause_start_time = HAL_GetTick();
+    }
+
     else if(strncmp(cmd,"BLINK ",6)==0){
         uint16_t val = atoi(cmd+6);
         if(val>=100 && val<=2000){
@@ -290,7 +319,10 @@ void update_alerts(void)
 
 
     // -------- Relay & Fan Control --------
-    if(mq2_level > 0 || mq135_level > 0){
+    // Fan/relay ON if any sensor threshold exceeded OR ML prediction requests it.
+    uint8_t ml_fan_request = (strncmp(ml_prediction, "WARN", 4) == 0 || strncmp(ml_prediction, "CRITICAL", 8) == 0) ? 1 : 0;
+
+    if(mq2_level > 0 || mq135_level > 0 || (ml_override_enabled && ml_fan_request)){
         relay_on();
         fan_on();
     } else {
@@ -434,10 +466,10 @@ int main(void)
         // ========== CSV LOGGING MODE (Priority) ==========
         if(csv_logging_enabled && now - last_csv_time >= csv_log_interval)
         {
-            // Format: timestamp,mq2,mq135
+            // Format: timestamp,mq2,mq135,ml
             snprintf(bt_buffer, sizeof(bt_buffer),
-                     "%lu,%.3f,%.3f\r\n",
-                     now, MQ2_V, MQ135_V);
+                     "%lu,%.3f,%.3f,%s\r\n",
+                     now, MQ2_V, MQ135_V, ml_prediction);
 
             // Direct UART transmit (bypass send_bluetooth to avoid pause check)
             HAL_UART_Transmit(&huart1, (uint8_t*)bt_buffer, strlen(bt_buffer), HAL_MAX_DELAY);
@@ -447,10 +479,11 @@ int main(void)
         else if(!csv_logging_enabled && !bluetooth_paused && now - last_sensor_time >= SENSOR_INTERVAL)
         {
             snprintf(bt_buffer, sizeof(bt_buffer),
-                     "MQ2: %.2f, MQ135: %.2f\r\n",
-                     MQ2_V, MQ135_V);
+                     "MQ2: %.2f, MQ135: %.2f, ML: %s\r\n",
+                     MQ2_V, MQ135_V, ml_prediction);
 
             send_bluetooth(bt_buffer);
+
             last_sensor_time = now;
         }
 
